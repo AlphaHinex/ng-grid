@@ -91,6 +91,7 @@
           var publicApi = {
             events: {
               exporter: {
+                exportAll: function (grid) { }
               }
             },
             methods: {
@@ -626,6 +627,7 @@
           
           switch ( rowTypes ) {
             case uiGridExporterConstants.ALL:
+              grid.api.exporter.raise.exportAll(grid);
               rows = grid.rows; 
               break;
             case uiGridExporterConstants.VISIBLE:
