@@ -81,6 +81,7 @@ describe('ui.grid.exporter uiGridExporterService', function () {
         exporterHeaderFilterUseName: false,
         exporterMenuCsv: true,
         exporterMenuPdf: true,
+        exporterMenuAllData: true,
         exporterFieldCallback: jasmine.any(Function),
         exporterSuppressColumns: []        
       });
@@ -105,6 +106,7 @@ describe('ui.grid.exporter uiGridExporterService', function () {
         exporterHeaderFilterUseName: true,
         exporterMenuCsv: false,
         exporterMenuPdf: false,
+        exporterMenuAllData: false,
         exporterFieldCallback: callback,
         exporterSuppressColumns: [ 'buttons' ]
       };
@@ -126,6 +128,7 @@ describe('ui.grid.exporter uiGridExporterService', function () {
         exporterHeaderFilterUseName: true,
         exporterMenuCsv: false,
         exporterMenuPdf: false,
+        exporterMenuAllData: false,
         exporterFieldCallback: callback,
         exporterSuppressColumns: [ 'buttons' ]
       });

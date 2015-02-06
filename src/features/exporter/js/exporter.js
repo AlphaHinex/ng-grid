@@ -635,7 +635,17 @@
           
           switch ( rowTypes ) {
             case uiGridExporterConstants.ALL:
-              grid.api.exporter.raise.exportAll(grid);
+              if (grid.rows.length !== grid.options.totalItems) {
+                // need to get data from server side, set them into options.data
+                grid.api.exporter.raise.exportAll(grid);
+                // and then modify rows in grid
+                grid.modifyRows(grid.options.data);
+                // once get all data from server side, turn to client side mode
+                grid.options.useExternalPagination = false;
+                grid.options.useExternalSorting = false;
+                //grid.api.pagination.paginationChanged = function () { };
+                //grid.api.core.sortChanged = function () { };
+              }
               rows = grid.rows; 
               break;
             case uiGridExporterConstants.VISIBLE:
