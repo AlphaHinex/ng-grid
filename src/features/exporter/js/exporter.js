@@ -91,20 +91,14 @@
           var publicApi = {
             events: {
               exporter: {
-                // need to get data from server side, set them into options.data
-                // and then modify rows in grid
-                // once get all data from server side, turn to client side mode
-
                 /**
                  * @ngdoc event
                  * @name exportAll
                  * @eventOf ui.grid.exporter.api:PublicApi
                  * @description This event fires when exporting all rows, 
                  * and the data needs to be provided by server side.  
-                 * 
-                 * @param {Grid} grid the grid from which data should be exported
                  */
-                exportAll: function (grid) { }
+                exportAll: function () { }
               }
             },
             methods: {
@@ -649,7 +643,7 @@
           switch ( rowTypes ) {
             case uiGridExporterConstants.ALL:
               if ( grid.rows.length !== grid.options.totalItems ) {
-                grid.api.exporter.raise.exportAll(grid);
+                grid.api.exporter.raise.exportAll();
                 grid.modifyRows(grid.options.data);
               }
               rows = grid.rows; 
