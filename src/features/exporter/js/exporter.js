@@ -643,8 +643,6 @@
                 // once get all data from server side, turn to client side mode
                 grid.options.useExternalPagination = false;
                 grid.options.useExternalSorting = false;
-                //grid.api.pagination.paginationChanged = function () { };
-                //grid.api.core.sortChanged = function () { };
               }
               rows = grid.rows; 
               break;
