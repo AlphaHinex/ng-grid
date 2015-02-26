@@ -76,6 +76,8 @@
 
       var service = {
 
+        delay: 100,
+
         initializeGrid: function (grid) {
 
           //add feature namespace and any properties to grid for needed state
@@ -152,7 +154,7 @@
               if (grid.api.core.addToGridMenu){
                 service.addToMenu( grid );
               }              
-            }, 100, 1);
+            }, this.delay, 1);
           }
 
         },
@@ -802,7 +804,7 @@
             }
             D.body.removeChild(a);
     
-          }, 100);
+          }, this.delay);
         },
 
         /**
