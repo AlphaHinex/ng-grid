@@ -547,13 +547,35 @@
          * uiGridExporterConstants.SELECTED
          */
         csvExport: function (grid, rowTypes, colTypes) {
-          var exportColumnHeaders = this.getColumnHeaders(grid, colTypes);
-          var exportData = this.getData(grid, rowTypes, colTypes);
-          var csvContent = this.formatAsCsv(exportColumnHeaders, exportData, grid.options.exporterCsvColumnSeparator);
-          
-          this.downloadFile (grid.options.exporterCsvFilename, csvContent);
+          this.loadAllDataIfNeeded(this, grid, rowTypes, colTypes, function(ref, grid, rowTypes, colTypes) {
+            var exportColumnHeaders = ref.getColumnHeaders(grid, colTypes);
+            var exportData = ref.getData(grid, rowTypes, colTypes);
+            var csvContent = ref.formatAsCsv(exportColumnHeaders, exportData, grid.options.exporterCsvColumnSeparator);
+            
+            ref.downloadFile (grid.options.exporterCsvFilename, csvContent);
+          });
         },
-        
+
+        // TODO
+        loadAllDataIfNeeded: function (ref, grid, rowTypes, colTypes, callback) {
+          if( rowTypes === uiGridExporterConstants.ALL && grid.rows.length !== grid.options.totalItems ) {
+            grid.api.exporter.raise.exportAll();
+            grid.modifyRows(grid.options.data);
+          }
+
+          this.tillAllDataLoaded(ref, grid, rowTypes, colTypes, callback);
+        },
+
+        // TODO
+        tillAllDataLoaded: function (ref, grid, rowTypes, colTypes, callback) {
+          setTimeout(function() {
+            if( rowTypes === uiGridExporterConstants.ALL && grid.rows.length !== grid.options.totalItems ) {
+              tillAllDataLoaded(rowTypes, callback);
+            } else {
+              callback(ref, grid, rowTypes, colTypes);
+            }
+          }, this.delay);
+        },
         
         /** 
          * @ngdoc property
@@ -644,10 +666,6 @@
           
           switch ( rowTypes ) {
             case uiGridExporterConstants.ALL:
-              if ( grid.rows.length !== grid.options.totalItems ) {
-                grid.api.exporter.raise.exportAll();
-                grid.modifyRows(grid.options.data);
-              }
               rows = grid.rows; 
               break;
             case uiGridExporterConstants.VISIBLE:
@@ -825,14 +843,15 @@
          * uiGridExporterConstants.SELECTED
          */
         pdfExport: function (grid, rowTypes, colTypes) {
-          var exportColumnHeaders = this.getColumnHeaders(grid, colTypes);
-          var exportData = this.getData(grid, rowTypes, colTypes);
-          var docDefinition = this.prepareAsPdf(grid, exportColumnHeaders, exportData);
-          
-          pdfMake.createPdf(docDefinition).open();
+          this.loadAllDataIfNeeded(this, grid, rowTypes, colTypes, function(ref, grid, rowTypes, colTypes) {
+            var exportColumnHeaders = ref.getColumnHeaders(grid, colTypes);
+            var exportData = ref.getData(grid, rowTypes, colTypes);
+            var docDefinition = ref.prepareAsPdf(grid, exportColumnHeaders, exportData);
+            
+            pdfMake.createPdf(docDefinition).open();
+          });
         },
-        
-        
+
         /**
          * @ngdoc function
          * @name renderAsPdf
