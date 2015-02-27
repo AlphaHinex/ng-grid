@@ -61,7 +61,6 @@ This shows combined external pagination and sorting.
 
       var getPage = function() {
         var url;
-        console.log(paginationOptions.sort);
         switch(paginationOptions.sort) {
           case uiGridConstants.ASC:
             url = '/data/100_ASC.json';
