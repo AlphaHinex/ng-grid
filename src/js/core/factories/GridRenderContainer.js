@@ -493,35 +493,10 @@ angular.module('ui.grid')
     this.setRenderedColumns(columnArr);
   };
 
-  GridRenderContainer.prototype.rowStyle = function (index) {
+  GridRenderContainer.prototype.headerCellWrapperStyle = function () {
     var self = this;
-
-    var styles = {};
     
-    if (index === 0 && self.currentTopRow !== 0) {
-      // The row offset-top is just the height of the rows above the current top-most row, which are no longer rendered
-      var hiddenRowWidth = (self.currentTopRow) * self.grid.options.rowHeight;
-
-      // return { 'margin-top': hiddenRowWidth + 'px' };
-      styles['margin-top'] = hiddenRowWidth + 'px';
-    }
-
     if (self.currentFirstColumn !== 0) {
-      if (self.grid.isRTL()) {
-        styles['margin-right'] = self.columnOffset + 'px';
-      }
-      else {
-        styles['margin-left'] = self.columnOffset + 'px';
-      }
-    }
-
-    return styles;
-  };
-
-  GridRenderContainer.prototype.columnStyle = function (index) {
-    var self = this;
-    
-    if (index === 0 && self.currentFirstColumn !== 0) {
       var offset = self.columnOffset;
 
       if (self.grid.isRTL()) {
@@ -545,7 +520,7 @@ angular.module('ui.grid')
         totalWidth = 0;
 
     // Get the width of the viewport
-    var availableWidth = self.getViewportWidth();
+    var availableWidth = self.getViewportWidth() - self.grid.scrollbarWidth;
 
     //if (typeof(self.grid.verticalScrollbarWidth) !== 'undefined' && self.grid.verticalScrollbarWidth !== undefined && self.grid.verticalScrollbarWidth > 0) {
     //  availableWidth = availableWidth + self.grid.verticalScrollbarWidth;

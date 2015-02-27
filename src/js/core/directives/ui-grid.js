@@ -108,7 +108,7 @@
             self.grid.modifyRows(newData)
               .then(function () {
                 // if (self.viewport) {
-                  self.grid.redrawInPlace();
+                  self.grid.redrawInPlace(true);
                 // }
 
                 $scope.$evalAsync(function() {
@@ -134,15 +134,15 @@
         }
       }
 
-      $scope.$on('$destroy', function() {
-        dataWatchCollectionDereg();
-        columnDefWatchCollectionDereg();
-      });
-
-      $scope.$watch(function () { return self.grid.styleComputations; }, function() {
+      var styleWatchDereg = $scope.$watch(function () { return self.grid.styleComputations; }, function() {
         self.grid.refreshCanvas(true);
       });
 
+      $scope.$on('$destroy', function() {
+        dataWatchCollectionDereg();
+        columnDefWatchCollectionDereg();
+        styleWatchDereg();
+      });
 
       self.fireEvent = function(eventName, args) {
         // Add the grid to the event arguments if it's not there

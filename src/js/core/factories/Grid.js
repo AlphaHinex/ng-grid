@@ -793,8 +793,8 @@ angular.module('ui.grid')
             return 0;
           }
           else {
-            var numA = a.match(nameRE)[1];
-            var numB = b.match(nameRE)[1];
+            var numA = a.displayName.match(nameRE)[1];
+            var numB = b.displayName.match(nameRE)[1];
 
             return parseInt(numA, 10) > parseInt(numB, 10) ? 1 : -1;
           }
@@ -1809,11 +1809,9 @@ angular.module('ui.grid')
    * @name refresh
    * @methodOf ui.grid.class:Grid
    * @description Refresh the rendered grid on screen.
-   * 
+   * @params {boolean} [rowsAltered] Optional flag for refreshing when the number of rows has changed.
    */
-  Grid.prototype.refresh = function refresh() {
-    // gridUtil.logDebug('grid refresh');
-    
+  Grid.prototype.refresh = function refresh(rowsAltered) {
     var self = this;
     
     var p1 = self.processRowsProcessors(self.rows).then(function (renderableRows) {
@@ -1825,11 +1823,11 @@ angular.module('ui.grid')
     });
 
     return $q.all([p1, p2]).then(function () {
-      self.redrawInPlace();
+      self.redrawInPlace(rowsAltered);
 
       self.refreshCanvas(true);
     });
-  };  
+  };
   
   /**
    * @ngdoc function
@@ -1882,12 +1880,24 @@ angular.module('ui.grid')
           continue;
         }
 
-        if (container.header) {
+        if (container.header || container.headerCanvas) {
           containerHeadersToRecalc.push(container);
         }
       }
     }
 
+    /*
+     *
+     * Here we loop through the headers, measuring each element as well as any header "canvas" it has within it.
+     *
+     * If any header is less than the largest header height, it will be resized to that so that we don't have headers
+     * with different heights, which looks like a rendering problem
+     *
+     * We'll do the same thing with the header canvases, and give the header CELLS an explicit height if their canvas
+     * is smaller than the largest canvas height. That was header cells without extra controls like filtering don't
+     * appear shorter than other cells.
+     *
+     */
     if (containerHeadersToRecalc.length > 0) {
       // Putting in a timeout as it's not calculating after the grid element is rendered and filled out
       $timeout(function() {
@@ -1897,7 +1907,8 @@ angular.module('ui.grid')
         var rebuildStyles = false;
 
         // Get all the header heights
-        var maxHeight = 0;
+        var maxHeaderHeight = 0;
+        var maxHeaderCanvasHeight = 0;
         var i, container;
         for (i = 0; i < containerHeadersToRecalc.length; i++) {
           container = containerHeadersToRecalc[i];
@@ -1927,8 +1938,24 @@ angular.module('ui.grid')
             container.innerHeaderHeight = innerHeaderHeight;
 
             // Save the largest header height for use later
-            if (innerHeaderHeight > maxHeight) {
-              maxHeight = innerHeaderHeight;
+            if (innerHeaderHeight > maxHeaderHeight) {
+              maxHeaderHeight = innerHeaderHeight;
+            }
+          }
+
+          if (container.headerCanvas) {
+            var oldHeaderCanvasHeight = container.headerCanvasHeight;
+            var headerCanvasHeight = gridUtil.outerElementHeight(container.headerCanvas);
+
+            container.headerCanvasHeight = parseInt(headerCanvasHeight, 10);
+
+            if (oldHeaderCanvasHeight !== headerCanvasHeight) {
+              rebuildStyles = true;
+            }
+
+            // Save the largest header canvas height for use later
+            if (headerCanvasHeight > maxHeaderCanvasHeight) {
+              maxHeaderCanvasHeight = headerCanvasHeight;
             }
           }
         }
@@ -1938,8 +1965,12 @@ angular.module('ui.grid')
           container = containerHeadersToRecalc[i];
 
           // If this header's height is less than another header's height, then explicitly set it so they're the same and one isn't all offset and weird looking
-          if (container.headerHeight < maxHeight) {
-            container.explicitHeaderHeight = maxHeight;
+          if (maxHeaderHeight > 0 && typeof(container.headerHeight) !== 'undefined' && container.headerHeight !== null && container.headerHeight < maxHeaderHeight) {
+            container.explicitHeaderHeight = maxHeaderHeight;
+          }
+
+          if (typeof(container.headerCanvasHeight) !== 'undefined' && container.headerCanvasHeight !== null && maxHeaderCanvasHeight > 0 && container.headerCanvasHeight < maxHeaderCanvasHeight) {
+            container.explicitHeaderCanvasHeight = maxHeaderCanvasHeight;
           }
         }
 
@@ -1968,9 +1999,10 @@ angular.module('ui.grid')
    * @name redrawCanvas
    * @methodOf ui.grid.class:Grid
    * @description Redraw the rows and columns based on our current scroll position
+   * @param {boolean} [rowsAdded] Optional to indicate rows are added and the scroll percentage must be recalculated
    * 
    */
-  Grid.prototype.redrawInPlace = function redrawInPlace() {
+  Grid.prototype.redrawInPlace = function redrawInPlace(rowsAdded) {
     // gridUtil.logDebug('redrawInPlace');
     
     var self = this;
@@ -1979,9 +2011,15 @@ angular.module('ui.grid')
       var container = self.renderContainers[i];
 
       // gridUtil.logDebug('redrawing container', i);
-
-      container.adjustRows(null, container.prevScrolltopPercentage, true);
-      container.adjustColumns(null, container.prevScrollleftPercentage);
+      
+      if (rowsAdded) {
+        container.adjustRows(container.prevScrollTop, null);
+        container.adjustColumns(container.prevScrollTop, null);
+      }
+      else {
+        container.adjustRows(null, container.prevScrolltopPercentage);
+        container.adjustColumns(null, container.prevScrollleftPercentage);
+      }
     }
   };
 
