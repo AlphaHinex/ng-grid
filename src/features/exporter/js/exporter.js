@@ -558,7 +558,7 @@
 
         // TODO
         loadAllDataIfNeeded: function (ref, grid, rowTypes, colTypes, callback) {
-          if( rowTypes === uiGridExporterConstants.ALL && grid.rows.length !== grid.options.totalItems ) {
+          if ( rowTypes === uiGridExporterConstants.ALL && grid.rows.length !== grid.options.totalItems ) {
             grid.api.exporter.raise.exportAll();
             grid.modifyRows(grid.options.data);
           }
@@ -569,7 +569,7 @@
         // TODO
         tillAllDataLoaded: function (ref, grid, rowTypes, colTypes, callback) {
           setTimeout(function() {
-            if( rowTypes === uiGridExporterConstants.ALL && grid.rows.length !== grid.options.totalItems ) {
+            if ( rowTypes === uiGridExporterConstants.ALL && grid.rows.length !== grid.options.totalItems ) {
               tillAllDataLoaded(rowTypes, callback);
             } else {
               callback(ref, grid, rowTypes, colTypes);
